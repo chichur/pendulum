@@ -1,0 +1,139 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Pendulum</title>
+  <link rel="stylesheet" href="./css/styles.css">
+  <link rel="stylesheet" href="https://code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">
+  <script src="https://code.jquery.com/jquery-1.12.4.js"></script>
+  <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
+  <script src="./js/pendulum.js"></script>
+  <style>
+  #mass, #rigidity, #shift {
+    width: 300px;
+    margin: 15px;
+  }
+  </style>
+  <script>
+  $( function() {
+
+    // задаем слайдеры jquery-ui
+    $( "#mass" ).slider({
+      orientation: "horizontal",
+      range: "min",
+      value: 0.5,
+      min: 0.5,
+      max: 1,
+      step: 0.1,
+      slide: function( event, ui ) {
+        $( "#mass-value" ).val( ui.value + " кг" );
+        refreshPendulum();
+      },
+      change: refreshPendulum
+    });
+
+    $( "#rigidity" ).slider({
+      orientation: "horizontal",
+      range: "min",
+      value: 5,
+      min: 5,
+      max: 9,
+      step: 1,
+      slide: function( event, ui ) {
+        $( "#rigidity-value" ).val( ui.value + " Н/м");
+      }
+    });
+
+    $( "#shift" ).slider({
+      orientation: "horizontal",
+      range: "min",
+      value: 10,
+      min: 0,
+      max: 20,
+      step: 2,
+      slide: function( event, ui ) {
+        $( "#shift-value" ).val( ui.value + " см" );
+        refreshPendulum();
+      },
+      change: refreshPendulum
+    });
+
+    // обновление маятника при изменении параметров
+    function refreshPendulum() {
+      let mass = $( "#mass" ).slider( "value" );
+      let shift = $( "#shift" ).slider( "value" );
+      drawPendulum(shift, mass);
+    }
+
+    $("#mass-value").val($( "#mass" ).slider( "value" ) + " кг" );
+    $("#rigidity-value").val($( "#rigidity" ).slider( "value" ) + " Н/м");
+    $("#shift-value").val($( "#shift" ).slider( "value" ) + " см");
+
+    $("#radio-play, #radio-stop" ).checkboxradio();
+    $("#radio-play").click(() => { // обработчик нажатия кнопки стоп
+      let mass = $( "#mass" ).slider( "value" ),
+           k = $( "#rigidity" ).slider( "value" ),
+           x0 =  $( "#shift" ).slider( "value" );
+      Play(mass, k, x0);
+      $("#mass").slider("disable");
+      $("#rigidity").slider("disable");
+      $("#shift").slider("disable");
+    });
+    $("#radio-stop").click(() => { // обработчик нажатия кнопки плей
+      Stop();
+      $("#mass").slider("enable");
+      $("#rigidity").slider("enable");
+      $("#shift").slider("enable");
+    });
+
+    $(document).ready(() => drawPendulum(10, 0.5, true));
+  } );
+  </script>
+</head>
+<body class="ui-widget-content" style="border:0;">
+  <fieldset>
+    <legend>Анимация</legend>
+    <label for="radio-play">Play</label>
+    <input type="radio" name="radio-play" id="radio-play">
+    <label for="radio-stop">Stop</label>
+    <input type="radio" name="radio-play" id="radio-stop">
+  </fieldset>
+  <div class="parameters">
+    <p>
+      <label for="mass-value">Масса груза:</label>
+      <input type="text" id="mass-value" readonly style="border:0; color:#f6931f; font-weight:bold;">
+    </p>
+    <div id="mass"></div>
+    <p>
+      <label for="rigidity-value">Жесткость пружины:</label>
+      <input type="text" id="rigidity-value" readonly style="border:0; color:#f6931f; font-weight:bold;">
+    </p>
+    <div id="rigidity"></div>
+    <p>
+      <label for="shift-value">Первоначально отклонение:</label>
+      <input type="text" id="shift-value" readonly style="border:0; color:#f6931f; font-weight:bold;">
+    </p>
+    <div id="shift"></div>
+  </div>
+  <canvas onload="refreshPendulum()" id="canvas" width="300" height="400"></canvas>
+  <div class="characteristics">
+    <p>
+      <label for="frec">Циклическая частота собственных колебаний :</label>
+      <input type="text" id="frec" readonly style="border:0; color:#f6931f; font-weight:bold;">
+    </p>
+    <p>
+      <label for="time">Время колебаний:</label>
+      <input type="text" id="time" readonly style="border:0; color:#f6931f; font-weight:bold;">
+    </p>
+    <p>
+      <label for="waves">Количество полных колебаний:</label>
+      <input type="text" id="waves" readonly style="border:0; color:#f6931f; font-weight:bold;">
+    </p>
+    <p>
+      <label for="position">Координата x:</label>
+      <input type="text" id="position" readonly style="border:0; color:#f6931f; font-weight:bold;">
+    </p>
+  </div>
+</body>
+</html>
